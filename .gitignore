@@ -50,3 +50,9 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+/.vs/Lab-4/v17
+/x64/Debug
+/Lab-4.vcxproj.user
+/Lab-4.vcxproj.filters
+/Lab-4.vcxproj
+/Lab-4.sln
