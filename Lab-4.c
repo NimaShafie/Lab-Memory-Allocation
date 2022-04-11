@@ -13,9 +13,16 @@ To simulate memory allocation with hole-fitting algorithms (First-fit, Best-fit)
 
 // declare structure to store block information (id, starting address, ending address, link to next block)
 struct node {
+// the identification of the block
 int id;
+
+// the size of the new block
 int start;
+
+// the ending address of the block
 int end;
+
+// a link to the next allocated block
 struct node *link;
 } *block_list = NULL;
 
@@ -24,7 +31,7 @@ typedef struct node block_type;
 // declare linked list to connect allocation block
 
 // declare global variables
-int pm_size;
+int pm_size = -1;
 int remaining;
 int hole_algo = -1;
 
@@ -36,16 +43,24 @@ void EnterParameters() {
     // prompt for size of physical memory and choice of hole-fitting algorithm (0=first-fit, 1=best-fit)
     printf("Enter size of physical memory: ");
     scanf("%d", &pm_size);
+    while(pm_size <= 0) {
+        printf("Size of physical memory must be greater than 0\n");
+        printf("Enter size of physical memory: ");
+        scanf("%d", &pm_size);
+    }
     remaining = pm_size;
 
-    while(hole_algo != 0 || hole_algo != 1) {
+    while(hole_algo != 0 && hole_algo != 1) {
     printf("Enter hole-fitting algorithm (0 = First Fit, 1 = Best-Fit): ");
     scanf("%d", &hole_algo);
     }
 
     // initialize remaining memory 
+
     
 	// initilize linked list with "dummy" block of size 0
+
+
 	return;
 }
 
