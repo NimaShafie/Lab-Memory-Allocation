@@ -10,8 +10,21 @@ Date Here
 #include <stdlib.h>
 
 // declare structure to store block information (id, starting address, ending address, link to next block)
+struct node {
+int id;
+int start;
+int end;
+struct node *link;
+} *block_list = NULL;
+
+typedef struct node block_type;
+
 // declare linked list to connect allocation block
+
 // declare global variables
+int pm_size;
+int remaining;
+int hole_algo;
 
 
 /********************************************************************/
