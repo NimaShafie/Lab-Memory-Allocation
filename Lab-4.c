@@ -35,7 +35,6 @@ int pm_size = -1;
 int remaining;
 int hole_algo = -1;
 
-
 /********************************************************************/
 void EnterParameters() {
 	// declare local variables (if any)
@@ -67,8 +66,11 @@ void EnterParameters() {
 
 /********************************************************************/
 void PrintAllocationTable() {
-	// declare local variables 
+	// declare local variables
+
 	// print table containing block id, starting address, ending address
+
+
 	return;
 }
 
@@ -76,10 +78,25 @@ void PrintAllocationTable() {
 /********************************************************************/
 void AllocteBlockMemory() {
 	// declare local variables
+    int temp_block;
+
 	// initialize best hole so far to size of physical memory
+
 	// prompt for block id & block size
+    printf("Enter block id: ");
+    scanf("%d", &temp_block);
+    while(temp_block <= 0) {
+        // block id entered cannot match another block id in the system
+        // block id entered must be >= 0
+        printf("Block ID cannot match a previous ID, and must 0 or greater\n");
+        printf("Enter block id: ");
+        scanf("%d", &temp_block);
+    }
+
 	// check if size of block is larger than remaining unallocated space, if so, print message and return	
+
 	// allocate space for new block and set id
+
 	// if only "dummy" block exists, insert block at end of linked list, set fields, return
 	// else traverse list until either appropriate hole is found or the end of the list is reached
 		// if id already exists, reject request and return
@@ -101,10 +118,14 @@ void AllocteBlockMemory() {
 /********************************************************************/
 void DeallocteBlockMemory() {
 	// declare local variables
+
 	// prompt for block id
+
 	// until end of linked list is reached or block id is found 
 		// traverse list
+
 	// if end of linked list reached, print block id not found
+
 	// else remove block and deallocate memory
 	return;
 }
@@ -112,10 +133,12 @@ void DeallocteBlockMemory() {
 
 /********************************************************************/
 void DefragmentMemory() {
-	// declare local variables 	   
+	// declare local variables 	  
+
 	// until end of list is reached
 		// calculate current hole size
 		// adjust start & end fields of current block to eliminate hole
+
 	return;
 }
 
@@ -124,9 +147,11 @@ void DefragmentMemory() {
 // this needs parameter_type * node as an arg
 void FreeMemoryQuitProgram(/*parameter_type *node arg*/) {
 	// if node is NULL, return
+
 	// else
 		//recursively call procedure on node->link
 		// deallocate memory from node
+
 	return;
 }
 
