@@ -3,7 +3,9 @@ Lab 4 - Memory Allocation
 Comp 322/L
 Nima Shafie
 Date Here
-// testing
+
+Description:
+To simulate memory allocation with hole-fitting algorithms (First-fit, Best-fit) and implement deallocation and defragmentation of memory blocks.
 */
 
 #include <stdio.h>
@@ -24,20 +26,32 @@ typedef struct node block_type;
 // declare global variables
 int pm_size;
 int remaining;
-int hole_algo;
+int hole_algo = -1;
 
 
 /********************************************************************/
-void "OPTION #1"() {
+void EnterParameters() {
 	// declare local variables (if any)
-	// prompt for size of physical memory and choice of hole-fitting algorithm (0=first-fit, 1=best-fit), initialize remaining memory 
+
+    // prompt for size of physical memory and choice of hole-fitting algorithm (0=first-fit, 1=best-fit)
+    printf("Enter size of physical memory: ");
+    scanf("%d", &pm_size);
+    remaining = pm_size;
+
+    while(hole_algo != 0 || hole_algo != 1) {
+    printf("Enter hole-fitting algorithm (0 = First Fit, 1 = Best-Fit): ");
+    scanf("%d", &hole_algo);
+    }
+
+    // initialize remaining memory 
+    
 	// initilize linked list with "dummy" block of size 0
 	return;
 }
 
 
 /********************************************************************/
-void "PROCEDURE TO PRINT ALLOCATION TABLE"() {
+void PrintAllocationTable() {
 	// declare local variables 
 	// print table containing block id, starting address, ending address
 	return;
@@ -45,7 +59,7 @@ void "PROCEDURE TO PRINT ALLOCATION TABLE"() {
 
 
 /********************************************************************/
-void "OPTION #2"() {
+void AllocteBlockMemory() {
 	// declare local variables
 	// initialize best hole so far to size of physical memory
 	// prompt for block id & block size
@@ -70,7 +84,7 @@ void "OPTION #2"() {
 
 
 /********************************************************************/
-void "OPTION #3"() {
+void DeallocteBlockMemory() {
 	// declare local variables
 	// prompt for block id
 	// until end of linked list is reached or block id is found 
@@ -82,7 +96,7 @@ void "OPTION #3"() {
 
 
 /********************************************************************/
-void "OPTION #4"() {
+void DefragmentMemory() {
 	// declare local variables 	   
 	// until end of list is reached
 		// calculate current hole size
@@ -91,8 +105,9 @@ void "OPTION #4"() {
 }
 
 
-/********************************************************************/
-void "OPTION #5"(parameter_type * node) {
+/*******************************************************************/
+// this needs parameter_type * node as an arg
+void FreeMemoryQuitProgram(/*parameter_type *node arg*/) {
 	// if node is NULL, return
 	// else
 		//recursively call procedure on node->link
@@ -103,12 +118,53 @@ void "OPTION #5"(parameter_type * node) {
 
 /***************************************************************/
 int main() {
+    int choice = 0;
+	enum { PARAM, ALLOCATE, DEALLOCATE, DEFRAGMENT, QUIT, INVALID } menuChoice;
+
+	while (choice != 5) {
+		printf("Memory Allocation\n------------------------------\n");
+		printf("1) Enter parameters\n");
+		printf("2) Allocate memory for block\n");
+		printf("3) Deallocate memory for block\n");
+        printf("4) Defragment memory\n");
+        printf("5) Quit program\n");
+		printf("\nEnter selection: ");
+		scanf("%d", &choice);
+		if (choice == 1) menuChoice = PARAM;
+		else if (choice == 2) menuChoice = ALLOCATE;
+        else if (choice == 3) menuChoice = DEALLOCATE;
+        else if (choice == 4) menuChoice = DEFRAGMENT;
+		else if (choice == 5) menuChoice = QUIT;
+		else menuChoice = INVALID;
+
+		switch (menuChoice) {
+		case PARAM:
+			EnterParameters();
+			break;
+		case ALLOCATE:
+			AllocteBlockMemory();
+			break;
+        case DEALLOCATE:
+			DeallocteBlockMemory();
+			break;
+        case DEFRAGMENT:
+			DefragmentMemory();
+			break;
+		case QUIT:
+			FreeMemoryQuitProgram();
+			break;
+		case INVALID:
+			printf("Invalid selection made, try again.\n\n");
+		}
+	};
+	printf("\nThank you for using the Banker's Algorithm program, have a good day!\n");
+
 	/* declare local vars */
 	/* while user has not chosen to quit */
 		/* print menu of options */
 		/* prompt for menu selection */
 		/* call appropriate procedure based on choice--use switch statement or series of if, else if, else statements */
-} /* while loop */
+ /* while loop */
+
 return 1; /* indicates success */
 } /* end of procedure */
-// test2
