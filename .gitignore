@@ -57,3 +57,7 @@ dkms.conf
 /Lab-4.vcxproj
 /Lab-4.sln
 Lab-4
+.vscode/c_cpp_properties.json
+.gitignore
+.vscode/settings.json
+.vscode/launch.json
