@@ -8,9 +8,18 @@ Description:
 To simulate memory allocation with hole-fitting algorithms (First-fit, Best-fit) and implement deallocation and defragmentation of memory blocks.
 */
 
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h> 
+
+/*
+struct vectorType {
+	int resource;
+	int available;
+} *vector = NULL, * resourceVector = NULL, * availableVector = NULL;
+typedef struct vectorType type_vector;
+*/
 
 // declare structure to store block information (id, starting address, ending address, link to next block)
 struct node {
@@ -55,6 +64,7 @@ void EnterParameters() {
     scanf("%d", &hole_algo);
     }
 
+<<<<<<< HEAD
     // initialize remaining memory
 	block_list = (block_type*)malloc(pm_size * sizeof(block_type)); // Memory is allocated for 'n' elements
     /*
@@ -79,6 +89,21 @@ void EnterParameters() {
     block_list[dummy].link = NULL;
 
     printf("\n");
+=======
+    // initialize remaining memory 
+	block_list = (block_type*)malloc(remaining * sizeof(block_list));
+	if (block_list == NULL) {
+		printf("\nNot able to allocate enough memory, terminating program.\n\n");
+		exit(0);
+	}
+    
+	// initilize linked list with "dummy" block of size 0
+	block_list[0].id = 0;
+	block_list[0].start = 0;
+	block_list[0].end = 0;
+	block_list[0].link = NULL;
+
+>>>>>>> a0b2ef93bddae3f292ae2263fce44fa16ac40f81
 	return;
 }
 
@@ -86,6 +111,7 @@ void EnterParameters() {
 /********************************************************************/
 void PrintAllocationTable() {
 	// declare local variables
+<<<<<<< HEAD
     int index = 0;
     bool end_of_list = false;
 
@@ -112,6 +138,27 @@ void PrintAllocationTable() {
         }
 	}
     }
+=======
+	int allocation_index = 0;
+	block_type* next = NULL;
+
+	// print table containing block id, starting address, ending address
+	printf("\nID\tStart\tEnd\n");
+	printf("-----------------------------\n");
+	// while there are still available children 
+	while (block_list[allocation_index].link != NULL) {
+		printf("\n%d\t%d\t%d",
+			block_list[allocation_index].id, block_list[allocation_index].start, block_list[allocation_index].end);
+	}
+	/*
+	for (int i = 0; i <= MAX_RESOURCES; i++) {
+		printf("r%d", i);
+		printf("\t%d\t%d", resourceVector[i].resource, availableVector[i].available);
+		printf("\n");
+	}
+	*/
+
+>>>>>>> a0b2ef93bddae3f292ae2263fce44fa16ac40f81
 	return;
 }
 
@@ -147,7 +194,7 @@ void AllocteBlockMemory() {
         block_list = block_list->link;
 
         // block id entered must be >= 0
-        printf("Block ID cannot match a previous ID, and must 0 or greater\n");
+        printf("Block ID cannot match a previous ID, and must be greater than or equal to 0\n");
         printf("Enter block id: ");
         scanf("%d", &temp_block);
     }
@@ -222,8 +269,13 @@ void AllocteBlockMemory() {
 					// update best block & advance next block 
 	// set start & end fields of new block & add block into linked list 	  
 	// reduce remaining available memory and return
+<<<<<<< HEAD
     PrintAllocationTable();
 
+=======
+
+	PrintAllocationTable();
+>>>>>>> a0b2ef93bddae3f292ae2263fce44fa16ac40f81
 	return;
 }
 
