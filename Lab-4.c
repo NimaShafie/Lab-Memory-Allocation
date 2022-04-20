@@ -39,12 +39,16 @@ typedef struct node block_type;
 // declare global variables
 int pm_size = -1;
 int remaining;
-int hole_algo = -1;
+// replace below with enum for better understanding
+//int hole_algo = -1;
+
+enum hole_algorithm { def = -1, first_fit = 0, best_fit = 1 } hole_algorithm;
 
 /********************************************************************/
 void EnterParameters() {
 	// declare local variables (if any)
 	int dummy = 0;
+	int algorithm_choice = -1;
 
 	// prompt for size of physical memory and choice of hole-fitting algorithm (0=first-fit, 1=best-fit)
 	printf("Enter size of physical memory: ");
@@ -56,10 +60,12 @@ void EnterParameters() {
 	}
 	remaining = pm_size;
 
-	while (hole_algo != 0 && hole_algo != 1) {
+	// this line below is being skipped, we need to set up this while loop differently to work with enums
+	while (algorithm_choice != 0 && algorithm_choice != 1) {
 		printf("Enter hole-fitting algorithm (0 = First Fit, 1 = Best-Fit): ");
-		scanf("%d", &hole_algo);
+		scanf("%d", &algorithm_choice);
 	}
+	hole_algorithm = algorithm_choice;
 
 	// initialize remaining memory
 	block_list = (block_type*)malloc(pm_size * sizeof(block_type)); // Memory is allocated for 'n' elements
@@ -78,12 +84,15 @@ void EnterParameters() {
 	}
 
 	printf("\n");
-	// initialize remaining memory 
+	// initialize remaining memory
+	// why is this sizeof(x) different than above??
+	/*
 	block_list = (block_type*)malloc(remaining * sizeof(block_list));
 	if (block_list == NULL) {
 		printf("\nNot able to allocate enough memory, terminating program.\n\n");
 		exit(0);
 	}
+	*/
 
 	// initilize linked list with "dummy" block of size 0
 	block_list[dummy].id = -1;
@@ -115,7 +124,7 @@ void PrintAllocationTable() {
 		table = table->link;
 	}
 	// remove this when done debugging
-	printf("\nRemaining: %d\n", remaining);
+	printf("\nRemaining: %d\n\n", remaining);
 	return;
 }
 
@@ -130,10 +139,11 @@ void AllocteBlockMemory() {
 	bool duplicate_id = false;
 	bool hole_found = false;
 	block_type* table = block_list;
+	block_type* temp = block_list;
 
-	//PrintAllocationTable();
-	//printf("\n");
-
+	PrintAllocationTable();
+	printf("\n");
+	 
 	// initialize best hole so far to size of physical memory
 
 	// prompt for block id & block size
@@ -192,9 +202,31 @@ void AllocteBlockMemory() {
 	}
 	*/
 
+	struct node* new_block = (block_type*)malloc(sizeof(block_type));
+	new_block->id = temp_block;
+	new_block->link = NULL;
+	new_block->start = 0;
+	new_block->end = 0;
+	new_block->parent = 0;
+	// block_list = (block_type*)malloc(pm_size * sizeof(block_type));
+	//block_list = (block_type*)malloc(remaining * sizeof(block_list));
+	// struct node *link = (struct node*) malloc(sizeof(struct node));
+
 	// if we got here, we're going to create something
+	if (block_list->link == NULL) {
+		printf("\nEXPER, this is the first block, adding it now.\n");
+		block_list->link = new_block;
+		new_block->parent = block_list->id;
+		new_block->start = block_list->end;
+		new_block->end = temp_block_size + block_list->end;
+	}
+
+	PrintAllocationTable();
+	printf("\n");
+
 
 	// if only "dummy" block exists, insert block at end of linked list, set fields, return
+	// this applies for either algorithm we're working with
 	if (block_list[dummy].link == NULL) {
 		block_list[dummy].link = &block_list[index];
 		block_list[index].id = temp_block;
@@ -202,6 +234,19 @@ void AllocteBlockMemory() {
 		block_list[index].start = 0;
 		block_list[index].end = temp_block_size;
 		block_list[index].link = NULL;
+
+		// back up of above in array implementation
+		/*
+		if (block_list[dummy].link == NULL) {
+		block_list[dummy].link = &block_list[index];
+		block_list[index].id = temp_block;
+		block_list[index].parent = block_list[dummy].id;
+		block_list[index].start = 0;
+		block_list[index].end = temp_block_size;
+		block_list[index].link = NULL;
+		*/
+
+		printf("\nWe should only be here if the block_list is NULL\n");
 		
 		/*
 		printf("\nID : %d \nParent : %d \nStart : %d \nEnd : %d \nLink : %p",
@@ -213,14 +258,52 @@ void AllocteBlockMemory() {
 	else {
 		// based on which algorithm we're using... 0 = first-fit, else = best-fit
 		// First-fit: Allocate the first hole that is big enough
-		if (hole_algo == 0) {
+		// if (hole_algo == 0) {
+		if (hole_algorithm == first_fit) {
 			// iterate through linked list, as soon as you find an opening, test it
 			// to confirm opening, see if the end block of previous block is equal to start block of next block
 			// start = 50, end = 100, temp_block_size = 50, we've found our target
 			// in other words, (end - start) >= temp_block_size, insert that ID right after the
 			while (!hole_found) {
+				// we only continue here if we have at least two elements in the list
+				if (table->link->link != NULL) {
+					printf("\nDetermined we have at least two elements in the list.\n");
+					// we can fit the block in a hole iff
+					// next elements ending size - current elements starting size >= element to be added size
+					if ((table->link->end - table->start) >= (temp_block_size)) {
+						printf("\nblock can fit between two blocks! adding it now\n");
+						// create add node function here
+
+						block_list[index].link = &block_list[temp_block];
+						block_list[temp_block].id = temp_block;
+						block_list[temp_block].start = block_list[index].end;
+						block_list[temp_block].end = block_list[temp_block].start + temp_block_size;
+						block_list[temp_block].link = NULL;
+						hole_found = true;
+					}
+				}
+
 				// no other links left, so we will insert the block after this current one
-				if (table[index].link == NULL) {
+				if (table->link == NULL) {
+					printf("\nWe've determined no other blocks fit the requirements/exist, we're going to insert"
+						"the block at the end of the linked list now.\n");
+					printf("\nDisabled this for now\n");
+					/*
+					block_list->link = &block_list;
+					block_list->id = temp_block;
+					block_list->start = block_list[index].end;
+					block_list[temp_block].end = block_list[temp_block].start + temp_block_size;
+					block_list[temp_block].link = NULL;
+					hole_found = true;
+					*/
+				}
+
+				// backup of working array method using linked list
+				/*
+				// no other links left, so we will insert the block after this current one
+				if (table->link == NULL) {
+					printf("\nWe've determined no other blocks fit the requirements/exist, we're going to insert"
+						"the block at the end of the linked list now.\n");
 					block_list[index].link = &block_list[temp_block];
 					block_list[temp_block].id = temp_block;
 					block_list[temp_block].start = block_list[index].end;
@@ -228,15 +311,22 @@ void AllocteBlockMemory() {
 					block_list[temp_block].link = NULL;
 					hole_found = true;
 				}
+				*/
+
+				// iterate here
+				// should probably test this sometime to see if its behaving correctly
+				table = table->link;
 			}
 		}
+
 		// best-fit (must search entire list, unless ordered by size, produces the smallest leftover hole)
 		// Best-fit: Allocate the smallest hole that is big enough
 		else {
 
 		}
+
+
 		printf("\nAttempting to add another block_list but this code hasn't been written yet\n");
-		// need to fill this in 
 	}
 
 	// reduce remaining available memory and return
