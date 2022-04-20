@@ -106,10 +106,12 @@ void PrintAllocationTable() {
 	printf("\nID\tStart\tEnd\n");
 	printf("-----------------------------\n");
 	while (table != NULL) {
-		printf("%d", table[index].id);
-		printf("\t%d", table[index].start);
-		printf("\t%d", table[index].end);
-		printf("\n");
+		if (table[index].id >= 0) {
+			printf("%d", table[index].id);
+			printf("\t%d", table[index].start);
+			printf("\t%d", table[index].end);
+			printf("\n");
+		}
 		table = table->link;
 	}
 	// remove this when done debugging
@@ -189,6 +191,8 @@ void AllocteBlockMemory() {
 		// block_list[temp_block].start = block_list[temp_block].
 	}
 	*/
+
+	// if we got here, we're going to create something
 
 	// if only "dummy" block exists, insert block at end of linked list, set fields, return
 	if (block_list[dummy].link == NULL) {
@@ -282,10 +286,9 @@ int FindTableHead() {
 void DeallocteBlockMemory() {
 	// declare local variables
 	int temp_block;
-	int index = 0;
 	int found_index = 0;
-	int recovered_memory = 0;
 	bool found_block = false;
+	bool last_block = false;
 	block_type* table = block_list;
 
 	// prompt for block id
@@ -297,16 +300,32 @@ void DeallocteBlockMemory() {
 		scanf("%d", &temp_block);
 	}
 
+
+	// THE PROBLEM IS
+	/*
+	table[0].id == -1
+	table[1].id == 3
+	we need a counter to determine how many times we iterate through the table, then we use
+	table[count] and remove that one
+	*/
+
 	// until end of linked list is reached or block id is found 
 	while (table != NULL && !found_block) {
 		// if found the block id
 		if (table->id == temp_block) {
 			found_block = true;
-			found_index = table[index].id;
-			// for debugging purposes
+			//printf("\nTest to show im not insane: table[0].id = %d\n\n", table[0].id);
+			//printf("\nTest to show im not insane: block_list[dummy].id = %d\n\n", block_list[0].id);
+			// for debugging
+			printf("\nThe ID we're going to remove is = %d\n", block_list[found_index].id);
 			printf("\nFound ID : %d\n", found_index);
+			// --
+			if (table->link == NULL) last_block = true;
 		}
-		table = table->link;
+		if (!found_block) {
+			found_index++;
+			table = table->link;
+		}
 	}
 
 	// if end of linked list reached, print block id not found
@@ -316,15 +335,24 @@ void DeallocteBlockMemory() {
 	// else remove block and deallocate memory
 	else {
 		// base case, if the block to remove is the last one, we don't alter the next block
-		if (table->link == NULL) {
-			recovered_memory = (table[found_index].end - table[found_index].start);
-			table[found_index].id = 0;
-			table[found_index].link = NULL;
-			table[found_index].parent = 0;
-			table[found_index].start = 0;
-			table[found_index].end = 0;
+		if (last_block) {		// fatal null error
+			remaining = (block_list[found_index].end - block_list[found_index].start);
+			// ID of -2 represents an empty block
+			block_list[found_index].id = -2;
+			block_list[found_index].link = NULL;
+			block_list[found_index].parent = 0;
+			block_list[found_index].end = 0;
 		}
 	}
+
+	// problem is we're just nulling out and 0'ing out the values, but the element itself into null
+	// so it still appears on the print table function
+
+	printf("\nWhat is table on right now?: %d", table->id);
+
+	printf("\n");
+	PrintAllocationTable();
+	printf("\n");
 	return;
 }
 
