@@ -108,26 +108,25 @@ void EnterParameters() {
 /********************************************************************/
 void PrintAllocationTable() {
 	// declare local variables
-	int index = 0;
+	//int index = 0;
 	block_type* table = block_list;
 
 	// print table containing block id, starting address, ending address
 	printf("\nID\tStart\tEnd\n");
 	printf("-----------------------------\n");
 	while (table != NULL) {
-		if (table[index].id >= 0) {
-			printf("%d", table[index].id);
-			printf("\t%d", table[index].start);
-			printf("\t%d", table[index].end);
+		if (table->id >= 0) {
+			printf("%d", table->id);
+			printf("\t%d", table->start);
+			printf("\t%d", table->end);
 			printf("\n");
 		}
 		table = table->link;
 	}
-	// remove this when done debugging
-	printf("\nRemaining: %d\n\n", remaining);
-	return;
+		// remove this when done debugging
+		printf("\nRemaining: %d\n\n", remaining);
+		return;
 }
-
 
 /********************************************************************/
 void AllocteBlockMemory() {
@@ -208,96 +207,73 @@ void AllocteBlockMemory() {
 	new_block->start = 0;
 	new_block->end = 0;
 	new_block->parent = 0;
-	// block_list = (block_type*)malloc(pm_size * sizeof(block_type));
-	//block_list = (block_type*)malloc(remaining * sizeof(block_list));
-	// struct node *link = (struct node*) malloc(sizeof(struct node));
 
 	// if we got here, we're going to create something
-	if (block_list->link == NULL) {
-		printf("\nEXPER, this is the first block, adding it now.\n");
-		block_list->link = new_block;
-		new_block->parent = block_list->id;
-		new_block->start = block_list->end;
-		new_block->end = temp_block_size + block_list->end;
-	}
-
-	PrintAllocationTable();
-	printf("\n");
 
 
-	// if only "dummy" block exists, insert block at end of linked list, set fields, return
+	// if only "dummy" block (head) exists, insert block at end of linked list, set fields, return
 	// this applies for either algorithm we're working with
-	if (block_list[dummy].link == NULL) {
-		block_list[dummy].link = &block_list[index];
-		block_list[index].id = temp_block;
-		block_list[index].parent = block_list[dummy].id;
-		block_list[index].start = 0;
-		block_list[index].end = temp_block_size;
-		block_list[index].link = NULL;
-
-		// back up of above in array implementation
-		/*
-		if (block_list[dummy].link == NULL) {
-		block_list[dummy].link = &block_list[index];
-		block_list[index].id = temp_block;
-		block_list[index].parent = block_list[dummy].id;
-		block_list[index].start = 0;
-		block_list[index].end = temp_block_size;
-		block_list[index].link = NULL;
-		*/
-
-		printf("\nWe should only be here if the block_list is NULL\n");
-		
-		/*
-		printf("\nID : %d \nParent : %d \nStart : %d \nEnd : %d \nLink : %p",
-			block_list[index].id, block_list[index].parent,
-			block_list[index].start, block_list[index].end, block_list[index].link);
-		*/
+	if (table->link == NULL) {
+		printf("\nThis is the first block, adding it now.\n");
+		table->link = new_block;
+		new_block->parent = table->id;
+		new_block->start = table->end;
+		new_block->end = temp_block_size + table->end;
 	}
+
+	// back up of above in array implementation
+	/*
+	if (block_list[dummy].link == NULL) {
+	block_list[dummy].link = &block_list[index];
+	block_list[index].id = temp_block;
+	block_list[index].parent = block_list[dummy].id;
+	block_list[index].start = 0;
+	block_list[index].end = temp_block_size;
+	block_list[index].link = NULL;
+	*/
+
 	// else traverse list until either appropriate hole is found or the end of the list is reached
 	else {
-		// based on which algorithm we're using... 0 = first-fit, else = best-fit
+		// based on which algorithm we're using first-fit, or best-fit
+
 		// First-fit: Allocate the first hole that is big enough
-		// if (hole_algo == 0) {
 		if (hole_algorithm == first_fit) {
 			// iterate through linked list, as soon as you find an opening, test it
 			// to confirm opening, see if the end block of previous block is equal to start block of next block
 			// start = 50, end = 100, temp_block_size = 50, we've found our target
 			// in other words, (end - start) >= temp_block_size, insert that ID right after the
 			while (!hole_found) {
-				// we only continue here if we have at least two elements in the list
-				if (table->link->link != NULL) {
+				printf("Let's check where we're at, currently table is at Block ID: %d\n", table->id);
+				// only one block left over
+
+				if (table->link == NULL) {
+					printf("\nThe next link is NULL, do not check further more after this, adding item now.\n");
+					table->link = new_block;
+					new_block->id = temp_block;	// one mroe time just to make sure
+					new_block->parent = table->id;
+					new_block->start = table->end;
+					new_block->end = temp_block_size + table->end;
+					hole_found = true;
+				}
+
+				if (table->link->link != NULL) {		// null ptr error
 					printf("\nDetermined we have at least two elements in the list.\n");
 					// we can fit the block in a hole iff
 					// next elements ending size - current elements starting size >= element to be added size
-					if ((table->link->end - table->start) >= (temp_block_size)) {
-						printf("\nblock can fit between two blocks! adding it now\n");
-						// create add node function here
+					if (table->link->end != table->link->link->start) {
+						if ((table->link->end - table->start) >= (temp_block_size)) {
+							printf("\nblock can fit between two blocks! adding it now\n");
+							// create add node function here
 
-						block_list[index].link = &block_list[temp_block];
-						block_list[temp_block].id = temp_block;
-						block_list[temp_block].start = block_list[index].end;
-						block_list[temp_block].end = block_list[temp_block].start + temp_block_size;
-						block_list[temp_block].link = NULL;
-						hole_found = true;
+							table[index].link = &table[temp_block];
+							table[temp_block].id = temp_block;
+							table[temp_block].start = table[index].end;
+							table[temp_block].end = table[temp_block].start + temp_block_size;
+							table[temp_block].link = NULL;
+							hole_found = true;
+						}
 					}
 				}
-
-				// no other links left, so we will insert the block after this current one
-				if (table->link == NULL) {
-					printf("\nWe've determined no other blocks fit the requirements/exist, we're going to insert"
-						"the block at the end of the linked list now.\n");
-					printf("\nDisabled this for now\n");
-					/*
-					block_list->link = &block_list;
-					block_list->id = temp_block;
-					block_list->start = block_list[index].end;
-					block_list[temp_block].end = block_list[temp_block].start + temp_block_size;
-					block_list[temp_block].link = NULL;
-					hole_found = true;
-					*/
-				}
-
 				// backup of working array method using linked list
 				/*
 				// no other links left, so we will insert the block after this current one
@@ -315,7 +291,9 @@ void AllocteBlockMemory() {
 
 				// iterate here
 				// should probably test this sometime to see if its behaving correctly
+
 				table = table->link;
+				//block_list = block_list->link;
 			}
 		}
 
@@ -326,7 +304,7 @@ void AllocteBlockMemory() {
 		}
 
 
-		printf("\nAttempting to add another block_list but this code hasn't been written yet\n");
+		//printf("\nAttempting to add another block_list but this code hasn't been written yet\n");
 	}
 
 	// reduce remaining available memory and return
