@@ -368,15 +368,16 @@ void DefragmentMemory() {
 
 // option 5
 /*******************************************************************/
-// this needs parameter_type * node as an arg
-// void "OPTION #5"(parameter_type *node) {
-void FreeMemoryQuitProgram(/*parameter_type *node arg*/) {
+void FreeMemoryQuitProgram(struct node* head) {
 	// if node is NULL, return
-
+	if (head == NULL) return;
 	// else
-		//recursively call procedure on node->link
+		// recursively call procedure on node->link
 		// deallocate memory from node
-
+	else {
+		FreeMemoryQuitProgram(head->link);
+		free(head);
+	}
 	return;
 }
 
@@ -416,7 +417,7 @@ int main() {
 			DefragmentMemory();
 			break;
 		case QUIT:
-			FreeMemoryQuitProgram();
+			FreeMemoryQuitProgram(block_list);
 			break;
 		case INVALID:
 			printf("Invalid selection made, try again.\n\n");
