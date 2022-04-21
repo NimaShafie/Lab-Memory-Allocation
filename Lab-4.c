@@ -42,6 +42,11 @@ int remaining;
 
 enum hole_algorithm { def = -1, first_fit = 0, best_fit = 1 } hole_algorithm;
 
+
+// global variables above *******************************************/
+
+
+// option 1
 /********************************************************************/
 void EnterParameters() {
 	// declare local variables (if any)
@@ -71,9 +76,7 @@ void EnterParameters() {
 		printf("\nNo memory is allocated.\n\n");
 		exit(0);
 	}
-
 	printf("\n");
-
 	// initilize linked list with "dummy" block of size 0
 	block_list[dummy].id = -1;
 	block_list[dummy].start = 0;
@@ -108,6 +111,7 @@ void PrintAllocationTable() {
 }
 
 
+// option 2
 /********************************************************************/
 void AllocteBlockMemory() {
 	// declare local variables
@@ -274,6 +278,7 @@ void AllocteBlockMemory() {
 }
 
 
+// option 3
 /********************************************************************/
 void DeallocteBlockMemory() {
 	// declare local variables
@@ -330,20 +335,41 @@ void DeallocteBlockMemory() {
 }
 
 
+// option 4
 /********************************************************************/
 void DefragmentMemory() {
-	// declare local variables 	  
+	// declare local variables
+	bool last_block = false;
+	block_type* current = block_list;
+	block_type* previous = current;
+	int block_size = 0;
 
 	// until end of list is reached
-		// calculate current hole size
-		// adjust start & end fields of current block to eliminate hole
-
+	// calculate current hole size
+	// adjust start & end fields of current block to eliminate hole
+	while (current != NULL && !last_block) {
+		if (current->link == NULL) last_block = true;
+		current = current->link;
+		// hole in memory found, we will defrag this now
+		if (!last_block) {
+			if (previous->end != current->start) {
+				block_size = (current->end - current->start);
+				current->start = previous->end;
+				current->end = current->start + block_size;
+			}
+			previous = current;
+		}
+	}
+	printf("\n");
+	PrintAllocationTable();
 	return;
 }
 
 
+// option 5
 /*******************************************************************/
 // this needs parameter_type * node as an arg
+// void "OPTION #5"(parameter_type *node) {
 void FreeMemoryQuitProgram(/*parameter_type *node arg*/) {
 	// if node is NULL, return
 
