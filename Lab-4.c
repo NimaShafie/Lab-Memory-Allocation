@@ -2,7 +2,7 @@
 Lab 4 - Memory Allocation
 Comp 322/L
 Nima Shafie
-Date Here
+4/24/2022
 
 Description:
 To simulate memory allocation with hole-fitting algorithms (First-fit, Best-fit)
