@@ -106,7 +106,8 @@ void PrintAllocationTable() {
 		table = table->link;
 	}
 	// remove this when done debugging
-	printf("\nRemaining: %d\n\n", remaining);
+	//printf("\nRemaining: %d\n\n", remaining);
+	printf("\n");
 	return;
 }
 
@@ -123,6 +124,7 @@ void AllocteBlockMemory() {
 	bool hole_found = false;
 	bool smallest_hole = false;
 	block_type* tmp_scan = block_list;
+	block_type* smallest_link = block_list;
 	block_type* current = block_list;
 	block_type* previous = current;
 
@@ -185,7 +187,6 @@ void AllocteBlockMemory() {
 		// else traverse list until either appropriate hole is found or the end of the list is reached
 		else {
 			// based on which algorithm we're using first-fit, or best-fit
-
 			// First-fit: Allocate the first hole that is big enough
 			if (hole_algorithm == first_fit) {
 				// iterate through linked list, as soon as you find an opening, test it
@@ -201,7 +202,8 @@ void AllocteBlockMemory() {
 						hole_found = true;
 					}
 
-					if (!hole_found) current = current->link;
+					if (!hole_found)
+						current = current->link;
 
 					// comparing previous to start to figure out if we need to insert the new block between the two
 					// compare head with next child
@@ -214,38 +216,66 @@ void AllocteBlockMemory() {
 							hole_found = true;
 						}
 					}
-					if (!hole_found) {
+					if (!hole_found)
 						previous = current;
-					}
 				}
 			}
 			// best-fit (must search entire list, unless ordered by size, produces the smallest leftover hole)
 			// Best-fit: Allocate the smallest hole that is big enough
-			else {
+			// just using an else if here for readability, else alone would be more efficent
+			else if (hole_algorithm == best_fit) {
+				bool end_of_list_reached = false;
+				bool block_added = false;
 				while (!hole_found) {
-					// only one block left over
+
+					// once we reach the end of the linked list we flag it
 					if (current->link == NULL) {
+						if ((pm_size - current->end) >= temp_block_size)
+							if ((pm_size - current->end) < temp_smallest_hole_size) {
+								smallest_link = current;
+								// below is set to trigger adding block to the end of the list from next if statement
+								temp_smallest_hole_size = pm_size;
+							}
+						end_of_list_reached = true;
+						hole_found = true;
+					}
+
+					// only one block left over
+					if (current->link == NULL && temp_smallest_hole_size == pm_size) {
 						current->link = new_block;
 						new_block->start = current->end;
 						new_block->end = temp_block_size + current->end;
 						hole_found = true;
+						block_added = true;
 					}
 
 					if (!hole_found) current = current->link;
 
 					// comparing previous to start to figure out if we need to insert the new block between the two
 					// compare head with next child
-					if (previous->end != current->start) {
-						if ((current->start - previous->end) >= (temp_block_size)) {
-							previous->link = new_block;
-							new_block->link = current;
-							new_block->start = previous->end;
-							new_block->end = new_block->start + temp_block_size;
-							hole_found = true;
+					if (previous->end != current->start && !end_of_list_reached && !hole_found) {
+						if ((current->start - previous->end) >= temp_block_size) {
+							if (temp_smallest_hole_size > (current->start - previous->end)) {
+								temp_smallest_hole_size = (current->start - previous->end);
+								smallest_link = previous;
+							}
 						}
 					}
+
+					// if we find a hole in the block, we must iterate through the entire list
+					// we keep track of the smallest hole size, once we finish iteration
+					// we add the block in the smallest fit size
+					if (end_of_list_reached && !block_added) {
+						new_block->start = smallest_link->end;
+						new_block->end = new_block->start + temp_block_size;
+						new_block->link = smallest_link->link;
+						smallest_link->link = new_block;
+						hole_found = true;
+					}
+
 					if (!hole_found) {
-						previous = current;
+						if (current->link != NULL)
+							 previous = current;
 					}
 				}
 			}
@@ -300,7 +330,7 @@ void DeallocteBlockMemory() {
 	while (current != NULL && !found_block) {
 		// below if statement is to not print out the head (dummy) of the linked list
 		if (current->id == temp_block) {
-			printf("\nFound ID to remove : %d\n", current->id);
+			//printf("\nFound ID to remove : %d\n", current->id);
 			found_block = true;
 			if (current->link == NULL) last_block = true;
 		}
@@ -316,8 +346,9 @@ void DeallocteBlockMemory() {
 	}
 	// else remove block and deallocate memory
 	else {
-		// base case, if the block to remove is the last one, we don't alter the next block
+		// base case, if the block to remove is the last one, we set the previous pointer to null
 		if (last_block) {		// fatal null error
+			previous->link = NULL;
 			remaining += (current->end - current->start);		// fatal null error
 		}
 		// the target block is not the last one, so we connect the previous element to this one now
@@ -328,6 +359,7 @@ void DeallocteBlockMemory() {
 	}
 	// free memory from node out of linked list
 	free(current);
+	current = NULL;
 	printf("\n");
 	PrintAllocationTable();
 	printf("\n");
@@ -423,7 +455,7 @@ int main() {
 			printf("Invalid selection made, try again.\n\n");
 		}
 	};
-	printf("\nThank you for using the Banker's Algorithm program, have a good day!\n");
+	printf("\nThank you for using the Memory Allocation program, have a good day!\n");
 
 	/* declare local vars */
 	/* while user has not chosen to quit */
